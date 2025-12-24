@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.potatohub.ctrip.backend.mapper.FlightMapper">
+
+    <select id="searchFlights" resultType="Flight">
+        SELECT *
+        FROM tb_flights
+        <where>
+            <if test="departure != null and departure != ''">
+                <if test="departure_type == 'airport'">
+                    AND departure_airport_code = #{departure}
+                </if>
+                <if test="departure_type == 'city'">
+                    AND departure_airport_code in (
+                        SELECT code
+                        FROM tb_airports
+                        WHERE city_id IN (
+                            SELECT id FROM tb_cities WHERE name LIKE CONCAT('%', #{departure}, '%')
+                        )
+                    )
+                </if>
+            </if>
+            <if test="arrival != null and arrival != ''">
+                <if test="arrival_type == 'airport'">
+                    AND arrival_airport_code = #{arrival}
+                </if>
+                <if test="arrival_type == 'city'">
+                    AND arrival_airport_code in (
+                        SELECT code
+                        FROM tb_airports
+                        WHERE city_id IN (
+                            SELECT id FROM tb_cities WHERE name LIKE CONCAT('%', #{arrival}, '%')
+                        )
+                    )
+                </if>
+            </if>
+            <if test="date != null">
+                AND DATE(departure_time) = DATE(#{date})
+            </if>
+        </where>
+        ORDER BY departure_time ${sort}
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="getCabinsByFlightId" resultType="FlightCabin">
+        SELECT * FROM tb_flight_cabins WHERE flight_id = #{flightId}
+    </select>
+
+    <select id="getCabinById" resultType="FlightCabin">
+        SELECT * FROM tb_flight_cabins WHERE id = #{id}
+    </select>
+
+</mapper>

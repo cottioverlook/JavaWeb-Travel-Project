@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.potatohub.ctrip.backend.mapper.LocationMapper">
+
+    <select id="getCities" resultType="City">
+        SELECT * FROM tb_cities WHERE name LIKE CONCAT('%', #{keyword}, '%') LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="getAirports" resultType="Airport">
+        SELECT * FROM tb_airports WHERE name LIKE CONCAT('%', #{keyword}, '%') LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="getStations" resultType="TrainStation">
+        SELECT * FROM tb_train_stations WHERE name LIKE CONCAT('%', #{keyword}, '%') LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+</mapper>

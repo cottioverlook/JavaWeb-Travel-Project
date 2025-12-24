@@ -1,0 +1,15 @@
+# --- Java/IntelliJ 忽略项 ---
+target/
+*.class
+.idea/
+*.iml
+*.log
+
+# --- 前端/Node 忽略项 ---
+node_modules/
+dist/
+.env.local
+.DS_Store
+
+# --- VS Code 忽略项 ---
+.vscode/

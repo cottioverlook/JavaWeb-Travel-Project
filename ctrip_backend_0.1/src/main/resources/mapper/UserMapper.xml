@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.potatohub.ctrip.backend.mapper.UserMapper">
+    <sql id="columns">
+        id, email, phone, name, password_hash, avatar_url, auth_level, created_at, updated_at
+    </sql>
+
+    <select id="getUsers" resultType="User">
+        SELECT
+        <include refid="columns"/>
+        FROM tb_users
+    </select>
+
+    <select id="getByEmailPwd" resultType="User">
+        SELECT
+        <include refid="columns"/>
+        FROM tb_users
+        WHERE
+        email = #{email}
+        AND
+        password_hash = #{passwordHash}
+    </select>
+
+    <select id="getByPhonePwd" resultType="User">
+        SELECT
+        <include refid="columns"/>
+        FROM tb_users
+        WHERE
+        phone = #{phone}
+        AND
+        password_hash = #{passwordHash}
+    </select>
+
+    <select id="getById" resultType="User">
+        SELECT
+        <include refid="columns"/>
+        FROM tb_users
+        WHERE id = #{id}
+    </select>
+
+    <select id="getByName" resultType="User">
+        SELECT
+        <include refid="columns"/>
+        FROM tb_users
+        WHERE name = #{name}
+    </select>
+
+    <select id="getByEmail" resultType="User">
+        SELECT
+        <include refid="columns"/>
+        FROM tb_users
+        WHERE email = #{email}
+    </select>
+
+    <select id="getByPhone" resultType="User">
+        SELECT
+        <include refid="columns"/>
+        FROM tb_users
+        WHERE phone = #{phone}
+    </select>
+
+    <insert id="add" parameterType="User">
+        INSERT INTO tb_users
+            (id, email, phone, name, password_hash, avatar_url, auth_level)
+        VALUES
+            (#{id}, #{email}, #{phone}, #{name}, #{passwordHash}, #{avatarUrl}, #{authLevel})
+    </insert>
+
+    <update id="update" parameterType="User">
+        UPDATE tb_users
+        <set>
+            <if test="email != null">email = #{email},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="name != null">name = #{name},</if>
+            <if test="passwordHash != null">password_hash = #{passwordHash},</if>
+            <if test="avatarUrl != null">avatar_url = #{avatarUrl},</if>
+            <if test="authLevel != null">auth_level = #{authLevel},</if>
+            <if test="updatedAt != null">updated_at = CURRENT_TIMESTAMP,</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM tb_users WHERE id = #{id}
+    </delete>
+
+</mapper>

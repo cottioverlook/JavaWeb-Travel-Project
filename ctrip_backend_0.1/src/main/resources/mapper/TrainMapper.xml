@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.potatohub.ctrip.backend.mapper.TrainMapper">
+
+    <select id="searchTrains" resultType="Train">
+        SELECT *
+        FROM tb_trains
+        <where>
+            <if test="departure_id != null and departure_id != ''">
+                <if test="departure_type == 'city'">
+                    AND departure_station_id IN (
+                        SELECT id FROM tb_stations
+                        WHERE city_id IN (
+                            SELECT id FROM tb_cities WHERE name LIKE CONCAT('%', #{departure_id}, '%')
+                        )
+                    )
+                </if>
+                <if test="departure_type == 'station'">
+                    AND departure_station_id = #{departure_id}
+                </if>
+            </if>
+            <if test="arrival_id != null and arrival_id != ''">
+                <if test="arrival_type == 'city'">
+                    AND arrival_station_id IN (
+                        SELECT id FROM tb_stations
+                        WHERE city_id IN (
+                            SELECT id FROM tb_cities WHERE name LIKE CONCAT('%', #{arrival_id}, '%')
+                        )
+                    )
+                </if>
+                <if test="arrival_type == 'station'">
+                    AND arrival_station_id = #{arrival_id}
+                </if>
+            </if>
+            <if test="date != null">
+                AND DATE(departure_time) = DATE(#{date})
+            </if>
+        </where>
+        ORDER BY departure_time ${sort}
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="getSeatsByTrainId" resultType="TrainSeat">
+        SELECT * FROM tb_train_seats WHERE train_id = #{trainId}
+    </select>
+
+    <select id="getSeatById" resultType="TrainSeat">
+        SELECT * FROM tb_train_seats WHERE id = #{id}
+    </select>
+
+</mapper>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.potatohub.ctrip.backend.mapper.AttractionMapper">
+
+    <select id="getRecommendations" resultType="top.potatohub.ctrip.backend.entities.Attraction">
+        SELECT * FROM attractions
+        ORDER BY RAND()
+        LIMIT #{limit}
+    </select>
+
+    <select id="searchAttractions" resultType="top.potatohub.ctrip.backend.entities.Attraction">
+        SELECT * FROM attractions
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (title LIKE CONCAT('%', #{keyword}, '%') OR tag LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+        </where>
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="findById" resultType="top.potatohub.ctrip.backend.entities.Attraction">
+        SELECT * FROM attractions WHERE id = #{id}
+    </select>
+
+    <update id="createTableIfNotExists">
+        CREATE TABLE IF NOT EXISTS attractions (
+            id VARCHAR(64) PRIMARY KEY,
+            title VARCHAR(255) NOT NULL,
+            price DECIMAL(10, 2),
+            tag VARCHAR(50),
+            rating DOUBLE,
+            comments VARCHAR(50),
+            img_url VARCHAR(500)
+        )
+    </update>
+
+    <insert id="insertAttraction">
+        INSERT INTO attractions (id, title, price, tag, rating, comments, img_url)
+        VALUES (#{id}, #{title}, #{price}, #{tag}, #{rating}, #{comments}, #{imgUrl})
+    </insert>
+
+    <delete id="deleteAll">
+        DELETE FROM attractions
+    </delete>
+
+    <select id="count" resultType="int">
+        SELECT COUNT(*) FROM attractions
+    </select>
+
+</mapper>
