@@ -134,10 +134,8 @@ const handleLogin = async () => {
     
     ElMessage.success('登录成功！')
     
-    // 跳转到个人中心
-    setTimeout(() => {
-      router.push('/user')
-    }, 500)
+    // 跳转到首页
+    router.push('/')
   } catch (error) {
     console.error(error)
   }

@@ -21,3 +21,10 @@ export function getReviewByOrder(orderId) {
     method: 'get'
   })
 }
+
+export function getProductReviews(productId) {
+  return request({
+    url: `/api/reviews/product/${productId}`,
+    method: 'get'
+  })
+}

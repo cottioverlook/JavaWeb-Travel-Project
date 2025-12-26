@@ -7,6 +7,7 @@ import top.potatohub.ctrip.backend.entities.*;
 import top.potatohub.ctrip.backend.service.LocationService;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -22,15 +23,15 @@ public class LocationController {
                                              @RequestParam(defaultValue = "10") int size) {
         LocationsDTO locations = new LocationsDTO();
         List<City> cities = locationService.getCities(keyword, page, size);
-        List<CityDTO> cityDTOs = cities.stream().map(CityDTO::new).toList();
+        List<CityDTO> cityDTOs = cities.stream().map(CityDTO::new).collect(Collectors.toList());
         locations.setCities(cityDTOs);
 
         List<Airport> airports = locationService.getAirports(keyword, page, size);
-        List<AirportDTO> airportDTOs = airports.stream().map(AirportDTO::new).toList();
+        List<AirportDTO> airportDTOs = airports.stream().map(AirportDTO::new).collect(Collectors.toList());
         locations.setAirports(airportDTOs);
 
         List<TrainStation> trainStations = locationService.getTrainStations(keyword, page, size);
-        List<TrainStationDTO> trainStationDTOs = trainStations.stream().map(TrainStationDTO::new).toList();
+        List<TrainStationDTO> trainStationDTOs = trainStations.stream().map(TrainStationDTO::new).collect(Collectors.toList());
         locations.setStations(trainStationDTOs);
         return Result.success(locations);
     }
@@ -40,7 +41,7 @@ public class LocationController {
                                            @RequestParam(defaultValue = "1") int page,
                                            @RequestParam(defaultValue = "10") int size) {
         List<City> cities = locationService.getCities(keyword, page, size);
-        List<CityDTO> cityDTOS = cities.stream().map(CityDTO::new).toList();
+        List<CityDTO> cityDTOS = cities.stream().map(CityDTO::new).collect(Collectors.toList());
         return Result.success(cityDTOS);
     }
 
@@ -49,7 +50,7 @@ public class LocationController {
                                                 @RequestParam(defaultValue = "1") int page,
                                                 @RequestParam(defaultValue = "10") int size) {
         List<Airport> airports = locationService.getAirports(keyword, page, size);
-        List<AirportDTO> airportDTOs = airports.stream().map(AirportDTO::new).toList();
+        List<AirportDTO> airportDTOs = airports.stream().map(AirportDTO::new).collect(Collectors.toList());
         return Result.success(airportDTOs);
     }
 
@@ -58,7 +59,7 @@ public class LocationController {
                                                           @RequestParam(defaultValue = "1") int page,
                                                           @RequestParam(defaultValue = "10") int size) {
         List<TrainStation> trainStations = locationService.getTrainStations(keyword, page, size);
-        List<TrainStationDTO> trainStationDTOS = trainStations.stream().map(TrainStationDTO::new).toList();
+        List<TrainStationDTO> trainStationDTOS = trainStations.stream().map(TrainStationDTO::new).collect(Collectors.toList());
         return Result.success(trainStationDTOS);
     }
 }

@@ -12,7 +12,11 @@
     </select>
 
     <select id="getByProductId" resultType="top.potatohub.ctrip.backend.entities.Review">
-        SELECT * FROM tb_reviews WHERE product_id = #{productId} ORDER BY created_at DESC
+        SELECT r.*, u.name as userName 
+        FROM tb_reviews r
+        LEFT JOIN tb_users u ON r.user_id = u.id
+        WHERE r.product_id = #{productId} 
+        ORDER BY r.created_at DESC
     </select>
 
     <select id="getByOrderId" resultType="top.potatohub.ctrip.backend.entities.Review">

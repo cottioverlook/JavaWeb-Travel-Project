@@ -31,6 +31,7 @@ public class WebConfig implements WebMvcConfigurer {
                             "/api/flights/**",
                             "/api/trains/**",
                             "/api/locations/**",
+                            "/api/reviews/product/**",
                             "/error"
                     );
         }

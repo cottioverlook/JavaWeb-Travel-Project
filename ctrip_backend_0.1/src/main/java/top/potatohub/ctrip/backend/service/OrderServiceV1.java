@@ -41,4 +41,22 @@ public class OrderServiceV1 implements OrderService {
         System.out.println("Updating order " + id + " to status " + status);
         orderMapper.updateOrderStatus(id, status);
     }
+
+    @Override
+    public void cancelOrder(String id) {
+        Order order = orderMapper.getOrderById(id);
+        if (order == null) {
+            throw new RuntimeException("Order not found");
+        }
+        
+        String status = order.getStatus();
+        if ("Pending".equals(status)) {
+            orderMapper.updateOrderStatus(id, "Cancelled");
+        } else if ("Paid".equals(status)) {
+            // Mock refund logic
+            orderMapper.updateOrderStatus(id, "Refunded");
+        } else {
+            throw new RuntimeException("Cannot cancel order with status: " + status);
+        }
+    }
 }

@@ -8,9 +8,10 @@
             v-model="keyword" 
             placeholder="搜索景点" 
             :prefix-icon="Search"
+            @keyup.enter="handleSearch"
           >
             <template #append>
-              <el-button type="primary">搜索</el-button>
+              <el-button type="primary" @click="handleSearch">搜索</el-button>
             </template>
           </el-input>
         </div>
@@ -30,7 +31,7 @@
       </div>
 
       <div class="list-content">
-        <div class="card-item" v-for="item in list" :key="item.id">
+        <div class="card-item" v-for="item in filteredList" :key="item.id">
           <img :src="item.image" class="card-img" />
           <div class="card-info">
             <h3>{{ item.name }} <el-tag size="small" type="success">{{ item.level }}</el-tag></h3>
@@ -47,7 +48,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Search } from '@element-plus/icons-vue'
 import { searchAttractions } from '@/api/home'
@@ -59,22 +60,30 @@ const filters = ref({ level: [] })
 const list = ref([])
 const loading = ref(false)
 
+// Determine level based on rating
+const getLevel = (rating) => {
+  if (rating >= 4.8) return '5A景区'
+  if (rating >= 4.0) return '4A景区'
+  return '3A景区'
+}
+
 const fetchList = async () => {
   loading.value = true
   try {
     const res = await searchAttractions({
       keyword: keyword.value,
       page: 1,
-      size: 20
+      size: 100 // Fetch more to allow client-side filtering
     })
     if (res) {
       list.value = res.map(item => ({
         id: item.id,
         name: item.title,
-        level: '4A/5A景区', // 后端暂无 level 字段，mock 一个
+        level: getLevel(item.rating),
         desc: item.tag,
         price: item.price,
-        image: item.imgUrl
+        image: item.imgUrl,
+        rating: item.rating
       }))
     }
   } catch (e) {
@@ -83,6 +92,26 @@ const fetchList = async () => {
     loading.value = false
   }
 }
+
+const filteredList = computed(() => {
+  let result = list.value
+
+  // Filter by Level
+  if (filters.value.level && filters.value.level.length > 0) {
+    result = result.filter(item => filters.value.level.includes(item.level))
+  }
+
+  // Filter by Theme (check if tag includes any selected theme)
+  if (filters.value.theme && filters.value.theme.length > 0) {
+    result = result.filter(item => {
+      // item.desc is mapped from tag
+      if (!item.desc) return false
+      return filters.value.theme.some(theme => item.desc.includes(theme))
+    })
+  }
+
+  return result
+})
 
 onMounted(() => {
   fetchList()

@@ -10,6 +10,7 @@ import top.potatohub.ctrip.backend.entities.HotelRoomDTO;
 import top.potatohub.ctrip.backend.service.HotelService;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -27,14 +28,14 @@ public class HotelController {
                                                @RequestParam(defaultValue = "1") int page,
                                                @RequestParam(defaultValue = "10") int size) {
         List<Hotel> hotels = hotelService.searchHotels(name_keyword, address_keyword, city_id, rating, page, size);
-        List<HotelDTO> hotelDTOS = hotels.stream().map(HotelDTO::new).toList();
+        List<HotelDTO> hotelDTOS = hotels.stream().map(HotelDTO::new).collect(Collectors.toList());
         return Result.success(hotelDTOS);
     }
 
     @GetMapping("/hotels/{hotelId}/rooms")
     public Result<List<HotelRoomDTO>> getHotelRooms(@PathVariable String hotelId) {
         List<HotelRoom> hotelRooms = hotelService.getHotelRooms(hotelId);
-        List<HotelRoomDTO> hotelRoomDTOS = hotelRooms.stream().map(HotelRoomDTO::new).toList();
+        List<HotelRoomDTO> hotelRoomDTOS = hotelRooms.stream().map(HotelRoomDTO::new).collect(Collectors.toList());
         return Result.success(hotelRoomDTOS);
     }
 

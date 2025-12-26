@@ -1,6 +1,6 @@
 package top.potatohub.ctrip.backend.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import top.potatohub.ctrip.backend.common.Result;

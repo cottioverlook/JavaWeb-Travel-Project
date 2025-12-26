@@ -79,7 +79,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Location, UserFilled } from '@element-plus/icons-vue'
 import { getHotelDetail, getHotelRooms } from '@/api/hotel'
@@ -97,11 +97,13 @@ const hotelInfo = ref({
 
 const roomList = ref([])
 
-const reviewList = ref([
-  { id: 1, user: '张三', date: '2023-10-01', content: '房间非常干净，前台服务态度很好，离地铁站很近，推荐！', verified: true },
-  { id: 2, user: '李四', date: '2023-09-28', content: '早餐很丰盛，但是在路边稍微有点吵，总体性价比高。', verified: true },
-  { id: 3, user: 'Wang_User', date: '2023-09-15', content: '带孩子来玩的，酒店送了儿童拖鞋，很贴心。', verified: true }
-])
+const reviewList = ref([])
+
+const averageScore = computed(() => {
+  if (reviewList.value.length === 0) return 0
+  const sum = reviewList.value.reduce((acc, curr) => acc + (curr.score || 0), 0)
+  return (sum / reviewList.value.length).toFixed(1)
+})
 
 onMounted(async () => {
   if (hotelId) {
@@ -131,6 +133,20 @@ onMounted(async () => {
           price: r.price
         }))
       }
+
+      // 3. 获取评价列表
+      // 注意：订单中的 productId 是 HOTEL_ + id
+      const reviews = await getProductReviews(`HOTEL_${hotelId}`)
+      if (reviews) {
+        reviewList.value = reviews.map(r => ({
+          id: r.id,
+          user: r.userName || '匿名用户',
+          date: r.createdAt ? r.createdAt.replace('T', ' ').split(' ')[0] : '',
+          content: r.content,
+          score: r.score,
+          verified: true // 只有已完成订单才能评价，所以都是已验证
+        }))
+      }
     } catch (e) {
       console.error(e)
     }
@@ -143,7 +159,8 @@ const handleBook = (room) => {
     path: '/pay',
     query: {
       price: room.price,
-      name: `${hotelInfo.value.name} - ${room.name}`
+      name: `${hotelInfo.value.name} - ${room.name}`,
+      id: `HOTEL_${hotelId}`
     }
   })
 }

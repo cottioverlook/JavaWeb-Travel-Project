@@ -98,6 +98,18 @@
               >
                 不可评价
               </el-button>
+              
+              <!-- 已完成的机票/火车票：显示退票 -->
+              <el-button 
+                v-if="(order.type === 'train' || order.type === 'flight') && order.status === '已完成'"
+                type="danger" 
+                size="small" 
+                plain 
+                @click="handleCancelOrder(order)"
+              >
+                退票
+              </el-button>
+
             </div>
 
           </div>
@@ -235,6 +247,7 @@ import { UserFilled } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getProfile, updateProfile, updatePassword, logout } from '@/api/auth'
 import { getUserOrders } from '@/api/order'
+import { submitReview as apiSubmitReview, getReviewByOrder } from '@/api/review'
 
 const router = useRouter()
 const activeMenu = ref('order') // 'order' | 'info'
@@ -306,8 +319,32 @@ const mapStatus = (serverStatus) => {
     case 'Pending': return '待支付'
     case 'Paid': return '已完成'
     case 'Cancelled': return '已取消'
+    case 'Refunded': return '已退款'
     default: return serverStatus
   }
+}
+
+const handleCancelOrder = async (order) => {
+  const isPaid = order.status === '已完成'
+  const actionText = isPaid ? '退票' : '取消订单'
+  
+  ElMessageBox.confirm(
+    `确定要${actionText}吗？${isPaid ? '退款将原路返回。' : ''}`, 
+    actionText, 
+    {
+      confirmButtonText: '确定',
+      cancelButtonText: '暂不',
+      type: 'warning'
+    }
+  ).then(async () => {
+    try {
+      await cancelOrder(order.id)
+      ElMessage.success(`${actionText}成功`)
+      fetchUserOrders() // 刷新列表
+    } catch (e) {
+      console.error(e)
+    }
+  }).catch(() => {})
 }
 
 const handleLogout = async () => {
@@ -378,23 +415,36 @@ const viewMyReview = (order) => {
 }
 
 // === 提交评价 ===
-const submitReview = () => {
+const submitReview = async () => {
   if (!reviewForm.value.content) {
     ElMessage.warning('请填写评价内容')
     return
   }
-  
-  // 更新 Mock 数据
-  const target = orderList.value.find(o => o.id === currentOrder.value.id)
-  if (target) {
-    target.hasReviewed = true
-    target.reviewScore = reviewForm.value.score
-    target.reviewContent = reviewForm.value.content
-    target.reviewDate = new Date().toISOString().split('T')[0]
+
+  try {
+    const payload = {
+      orderId: currentOrder.value.id,
+      score: reviewForm.value.score,
+      content: reviewForm.value.content
+    }
+    
+    await apiSubmitReview(payload)
+    
+    // 更新列表状态
+    const target = orderList.value.find(o => o.id === currentOrder.value.id)
+    if (target) {
+      target.hasReviewed = true
+      target.reviewScore = reviewForm.value.score
+      target.reviewContent = reviewForm.value.content
+      target.reviewDate = new Date().toISOString().split('T')[0]
+    }
+    
+    dialogVisible.value = false
+    ElMessage.success('评价提交成功！感谢您的反馈')
+  } catch (error) {
+    console.error(error)
+    // 错误已由拦截器处理
   }
-  
-  dialogVisible.value = false
-  ElMessage.success('评价提交成功！感谢您的反馈')
 }
 
 // === 修改密码 ===

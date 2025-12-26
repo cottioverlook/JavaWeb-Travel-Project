@@ -218,9 +218,21 @@ const handleSearch = (type) => {
     }
     router.push({ path: '/flight-list', query: params })
   } else if (type === 'train') {
-    router.push('/train-list')
+    const params = {}
+    if (trainForm.value.from) params.from = trainForm.value.from
+    if (trainForm.value.to) params.to = trainForm.value.to
+    if (trainForm.value.date) {
+      const d = new Date(trainForm.value.date)
+      const year = d.getFullYear()
+      const month = String(d.getMonth() + 1).padStart(2, '0')
+      const day = String(d.getDate()).padStart(2, '0')
+      params.date = `${year}-${month}-${day}`
+    }
+    router.push({ path: '/train-list', query: params })
   } else if (type === 'scenery') {
-    router.push('/scenery-list')
+    const params = {}
+    if (sceneryForm.value.keyword) params.keyword = sceneryForm.value.keyword
+    router.push({ path: '/scenery-list', query: params })
   }
 }
 

@@ -11,10 +11,16 @@
     </select>
 
     <select id="searchAttractions" resultType="top.potatohub.ctrip.backend.entities.Attraction">
-        SELECT * FROM attractions
+        SELECT a.* 
+        FROM attractions a
+        LEFT JOIN tb_cities c ON a.city_id = c.id
         <where>
             <if test="keyword != null and keyword != ''">
-                AND (title LIKE CONCAT('%', #{keyword}, '%') OR tag LIKE CONCAT('%', #{keyword}, '%'))
+                AND (
+                    a.title LIKE CONCAT('%', #{keyword}, '%') 
+                    OR a.tag LIKE CONCAT('%', #{keyword}, '%')
+                    OR c.name LIKE CONCAT('%', #{keyword}, '%')
+                )
             </if>
         </where>
         LIMIT #{limit} OFFSET #{offset}
@@ -32,13 +38,14 @@
             tag VARCHAR(50),
             rating DOUBLE,
             comments VARCHAR(50),
-            img_url VARCHAR(500)
+            img_url VARCHAR(500),
+            city_id VARCHAR(64)
         )
     </update>
 
     <insert id="insertAttraction">
-        INSERT INTO attractions (id, title, price, tag, rating, comments, img_url)
-        VALUES (#{id}, #{title}, #{price}, #{tag}, #{rating}, #{comments}, #{imgUrl})
+        INSERT INTO attractions (id, title, price, tag, rating, comments, img_url, city_id)
+        VALUES (#{id}, #{title}, #{price}, #{tag}, #{rating}, #{comments}, #{imgUrl}, #{cityId})
     </insert>
 
     <delete id="deleteAll">

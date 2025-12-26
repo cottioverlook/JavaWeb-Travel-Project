@@ -8,9 +8,54 @@
     </div>
 
     <div class="main-content">
-      <div class="train-list">
-        <div class="train-card" v-for="item in list" :key="item.id">
-          <div class="train-info">
+      <!-- 筛选侧边栏 -->
+      <div class="filter-sidebar">
+        <div class="filter-group">
+          <h3>车次类型</h3>
+          <el-checkbox-group v-model="filters.type">
+            <el-checkbox label="high_speed">高铁/动车 (G/D)</el-checkbox>
+            <el-checkbox label="normal">普通列车 (Z/K/T)</el-checkbox>
+          </el-checkbox-group>
+        </div>
+        <div class="filter-group">
+          <h3>出发时间</h3>
+          <el-checkbox-group v-model="filters.time">
+            <el-checkbox label="morning">上午 (06:00-12:00)</el-checkbox>
+            <el-checkbox label="afternoon">下午 (12:00-18:00)</el-checkbox>
+            <el-checkbox label="evening">晚上 (18:00-24:00)</el-checkbox>
+          </el-checkbox-group>
+        </div>
+      </div>
+
+      <div class="list-content">
+        <!-- 排序栏 -->
+        <div class="sort-bar">
+          <span 
+            class="sort-item" 
+            :class="{ active: sortBy === 'price' }"
+            @click="handleSort('price')"
+          >
+            价格 <el-icon><CaretBottom /></el-icon>
+          </span>
+          <span 
+            class="sort-item" 
+            :class="{ active: sortBy === 'time' }"
+            @click="handleSort('time')"
+          >
+            出发时间 <el-icon><CaretBottom /></el-icon>
+          </span>
+          <span 
+            class="sort-item" 
+            :class="{ active: sortBy === 'duration' }"
+            @click="handleSort('duration')"
+          >
+            耗时 <el-icon><CaretBottom /></el-icon>
+          </span>
+        </div>
+
+        <div class="train-list">
+          <div class="train-card" v-for="item in filteredList" :key="item.id">
+            <div class="train-info">
             <div class="code">
               <h3>{{ item.code }}</h3>
             </div>
@@ -41,6 +86,7 @@
       </div>
     </div>
   </div>
+  </div>
 </template>
 
 <script setup>
@@ -53,6 +99,69 @@ const router = useRouter()
 const route = useRoute()
 const list = ref([])
 const loading = ref(false)
+const filters = ref({
+  type: [],
+  time: []
+})
+const sortBy = ref('') // 'price' | 'time' | 'duration'
+
+const filteredList = computed(() => {
+  let result = [...list.value]
+
+  // Filter by Type
+  if (filters.value.type.length > 0) {
+    result = result.filter(item => {
+      const isHighSpeed = item.code.startsWith('G') || item.code.startsWith('D') || item.code.startsWith('C')
+      const isNormal = !isHighSpeed
+      
+      return filters.value.type.some(t => {
+        if (t === 'high_speed') return isHighSpeed
+        if (t === 'normal') return isNormal
+        return false
+      })
+    })
+  }
+
+  // Filter by Time
+  if (filters.value.time.length > 0) {
+    result = result.filter(item => {
+      const hour = parseInt(item.depTime.split(':')[0])
+      return filters.value.time.some(t => {
+        if (t === 'morning') return hour >= 6 && hour < 12
+        if (t === 'afternoon') return hour >= 12 && hour < 18
+        if (t === 'evening') return hour >= 18 && hour <= 24
+        return false
+      })
+    })
+  }
+
+  // Sorting
+  if (sortBy.value === 'price') {
+    // Sort by the lowest seat price
+    result.sort((a, b) => {
+      const minPriceA = a.seats.length > 0 ? Math.min(...a.seats.map(s => s.price)) : 999999
+      const minPriceB = b.seats.length > 0 ? Math.min(...b.seats.map(s => s.price)) : 999999
+      return minPriceA - minPriceB
+    })
+  } else if (sortBy.value === 'time') {
+    result.sort((a, b) => a.depTime.localeCompare(b.depTime))
+  } else if (sortBy.value === 'duration') {
+    // Duration format "XhYm" -> convert to minutes for sorting
+    const getMinutes = (d) => {
+      if (!d) return 999999
+      const h = parseInt(d.split('h')[0])
+      const m = parseInt(d.split('h')[1].split('m')[0])
+      return h * 60 + m
+    }
+    result.sort((a, b) => getMinutes(a.duration) - getMinutes(b.duration))
+  }
+
+  return result
+})
+
+const handleSort = (type) => {
+  sortBy.value = type
+}
 
 const fetchTrains = async () => {
   loading.value = true
@@ -81,10 +190,8 @@ const fetchTrains = async () => {
         seats: []
       }))
       
-      list.value = trainList
-
-      // Fetch seats for each train
-      trainList.forEach(async (train) => {
+      // Fetch seats for each train in parallel
+      await Promise.all(trainList.map(async (train) => {
         try {
           const seats = await getTrainSeats(train.id)
           if (seats) {
@@ -98,7 +205,9 @@ const fetchTrains = async () => {
         } catch (e) {
           console.error(e)
         }
-      })
+      }))
+
+      list.value = trainList
     } else {
       list.value = []
       ElMessage.info('暂无车次信息')

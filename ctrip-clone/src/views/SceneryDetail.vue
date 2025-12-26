@@ -97,4 +97,12 @@ const handleBook = (ticket) => {
 .t-info p { margin: 0; color: #999; font-size: 14px; }
 .t-action { display: flex; align-items: center; gap: 20px; }
 .price { color: #ff4d4f; font-size: 24px; font-weight: bold; }
+
+.review-section { margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; }
+.no-reviews { color: #999; text-align: center; padding: 20px; }
+.review-item { border-bottom: 1px solid #f5f5f5; padding: 15px 0; }
+.r-header { display: flex; align-items: center; gap: 15px; margin-bottom: 10px; }
+.user { font-weight: bold; color: #333; }
+.date { color: #999; font-size: 12px; margin-left: auto; }
+.r-content { color: #666; line-height: 1.6; }
 </style>

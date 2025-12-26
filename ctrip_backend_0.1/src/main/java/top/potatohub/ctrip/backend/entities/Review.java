@@ -13,4 +13,7 @@ public class Review {
     private Double score;
     private String content;
     private LocalDateTime createdAt;
+    
+    // Transient field for display
+    private String userName;
 }

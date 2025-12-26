@@ -1,6 +1,6 @@
 package top.potatohub.ctrip.backend.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import top.potatohub.ctrip.backend.common.Result;
@@ -49,5 +49,15 @@ public class OrderController {
         System.out.println("Received pay request for order: " + id);
         orderService.updateStatus(id, "Paid");
         return Result.success("Payment successful");
+    }
+
+    @PostMapping("/{id}/cancel")
+    public Result<String> cancelOrder(@PathVariable String id) {
+        try {
+            orderService.cancelOrder(id);
+            return Result.success("Order cancelled successfully");
+        } catch (RuntimeException e) {
+            return Result.error(400, e.getMessage());
+        }
     }
 }

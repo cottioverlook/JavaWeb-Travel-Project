@@ -8,9 +8,46 @@
     </div>
 
     <div class="main-content">
-      <div class="flight-list">
-        <div class="flight-card" v-for="item in list" :key="item.id">
-          <div class="flight-info">
+      <!-- 筛选侧边栏 -->
+      <div class="filter-sidebar">
+        <div class="filter-group">
+          <h3>起飞时间</h3>
+          <el-checkbox-group v-model="filters.time">
+            <el-checkbox label="morning">上午 (06:00-12:00)</el-checkbox>
+            <el-checkbox label="afternoon">下午 (12:00-18:00)</el-checkbox>
+            <el-checkbox label="evening">晚上 (18:00-24:00)</el-checkbox>
+          </el-checkbox-group>
+        </div>
+        <div class="filter-group">
+          <h3>航空公司</h3>
+          <el-checkbox-group v-model="filters.airline">
+            <el-checkbox v-for="airline in airlineOptions" :key="airline" :label="airline" />
+          </el-checkbox-group>
+        </div>
+      </div>
+
+      <div class="list-content">
+        <!-- 排序栏 -->
+        <div class="sort-bar">
+          <span 
+            class="sort-item" 
+            :class="{ active: sortBy === 'price' }"
+            @click="handleSort('price')"
+          >
+            价格 <el-icon><CaretBottom /></el-icon>
+          </span>
+          <span 
+            class="sort-item" 
+            :class="{ active: sortBy === 'time' }"
+            @click="handleSort('time')"
+          >
+            起飞时间 <el-icon><CaretBottom /></el-icon>
+          </span>
+        </div>
+
+        <div class="flight-list">
+          <div class="flight-card" v-for="item in filteredList" :key="item.id">
+            <div class="flight-info">
             <div class="airline">
               <h3>{{ item.airline }}</h3>
               <p>{{ item.flightNo }}</p>
@@ -37,6 +74,7 @@
         </div>
       </div>
     </div>
+  </div>
   </div>
 </template>
 
@@ -149,7 +187,16 @@ const handleBook = (item) => {
 .nav-bar { background: #fff; padding: 10px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
 .nav-content { width: 1000px; margin: 0 auto; display: flex; align-items: center; gap: 40px; }
 .logo { color: #0086f6; font-size: 24px; cursor: pointer; margin: 0; }
-.main-content { width: 1000px; margin: 20px auto; }
+.main-content { width: 1000px; margin: 20px auto; display: flex; gap: 20px; }
+.filter-sidebar { width: 240px; background: #fff; padding: 20px; border-radius: 4px; height: fit-content; }
+.filter-group { margin-bottom: 30px; }
+.filter-group h3 { font-size: 16px; margin-bottom: 15px; border-left: 3px solid #0086f6; padding-left: 10px; }
+.list-content { flex: 1; }
+
+.sort-bar { background: #fff; padding: 10px 20px; margin-bottom: 15px; border-radius: 4px; display: flex; gap: 30px; font-size: 14px; }
+.sort-item { cursor: pointer; display: flex; align-items: center; gap: 4px; }
+.sort-item:hover, .sort-item.active { color: #0086f6; font-weight: bold; }
+
 .flight-card { background: #fff; padding: 30px; margin-bottom: 15px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; }
 .flight-info { display: flex; gap: 60px; align-items: center; flex: 1; }
 .airline h3 { margin: 0; font-size: 16px; }

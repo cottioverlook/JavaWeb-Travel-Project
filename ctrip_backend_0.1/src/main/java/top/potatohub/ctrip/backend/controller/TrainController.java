@@ -7,6 +7,7 @@ import top.potatohub.ctrip.backend.entities.*;
 import top.potatohub.ctrip.backend.service.TrainService;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -29,14 +30,14 @@ public class TrainController {
         if(trains == null){
             return Result.error(405,"Date format invalid!");
         }
-        List<TrainDTO> trainDTOS = trains.stream().map(TrainDTO::new).toList();
+        List<TrainDTO> trainDTOS = trains.stream().map(TrainDTO::new).collect(Collectors.toList());
         return Result.success(trainDTOS);
     }
 
     @GetMapping("/trains/{trainId}/seats")
     public Result<List<TrainSeatDTO>> getTrainSeats(@PathVariable String trainId) {
         List<TrainSeat> trainSeats = trainService.getTrainSeats(trainId);
-        List<TrainSeatDTO> trainSeatDTOS = trainSeats.stream().map(TrainSeatDTO::new).toList();
+        List<TrainSeatDTO> trainSeatDTOS = trainSeats.stream().map(TrainSeatDTO::new).collect(Collectors.toList());
         return Result.success(trainSeatDTOS);
     }
 

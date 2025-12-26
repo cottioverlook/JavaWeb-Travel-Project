@@ -16,4 +16,5 @@ public class Attraction {
     private Double rating;
     private String comments;
     private String imgUrl;
+    private String cityId;
 }

@@ -28,3 +28,10 @@ export function payOrder(id) {
     method: 'post'
   })
 }
+
+export function cancelOrder(id) {
+  return request({
+    url: `/api/orders/${id}/cancel`,
+    method: 'post'
+  })
+}

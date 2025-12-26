@@ -1,6 +1,6 @@
 package top.potatohub.ctrip.backend.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import top.potatohub.ctrip.backend.common.Result;
@@ -41,5 +41,10 @@ public class ReviewController {
     @GetMapping("/order/{orderId}")
     public Result<Review> getReviewByOrder(@PathVariable String orderId) {
         return Result.success(reviewService.getReviewByOrder(orderId));
+    }
+
+    @GetMapping("/product/{productId}")
+    public Result<List<Review>> getProductReviews(@PathVariable String productId) {
+        return Result.success(reviewService.getProductReviews(productId));
     }
 }
