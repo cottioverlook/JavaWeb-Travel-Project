@@ -19,6 +19,4 @@ public interface AuthService {
 
     int changePassword(String id, String oldPassword, String newPassword);
 
-    int resetPassword(String type, String identification, String password);
-
 }

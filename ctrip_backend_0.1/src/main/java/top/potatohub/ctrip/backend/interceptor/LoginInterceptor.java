@@ -21,6 +21,9 @@ public class LoginInterceptor implements HandlerInterceptor {
     @Autowired
     private TokenBlacklistService tokenBlacklistService;
 
+    @Autowired
+    private JwtUtils jwtUtils;
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws IOException {
         String requestURI = request.getRequestURI();
@@ -53,8 +56,7 @@ public class LoginInterceptor implements HandlerInterceptor {
                     return false;
                 }
 
-                System.out.println(token);
-                claims = JwtUtils.parseToken(token);
+                claims = jwtUtils.parseToken(token);
                 // Success
                 String id = claims.get("userId", String.class);
                 request.setAttribute("userId", id);

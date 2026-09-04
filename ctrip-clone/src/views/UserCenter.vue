@@ -226,7 +226,7 @@
           <el-input v-model="editForm.phone" disabled placeholder="手机号暂不支持修改" />
         </el-form-item>
         <el-form-item label="邮箱">
-          <el-input v-model="editForm.email" />
+          <el-input v-model="editForm.email" disabled placeholder="邮箱修改需要单独验证" />
         </el-form-item>
       </el-form>
       <template #footer>

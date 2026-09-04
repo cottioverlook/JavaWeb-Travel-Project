@@ -16,10 +16,11 @@ public class AuthServiceV1 implements AuthService {
     UserMapper userMapper;
     @Autowired
     UserService userService;
+    @Autowired
+    JwtUtils jwtUtils;
 
     @Override
     public int auth(String authType, String identification, String password) {
-        String passwordHash = PasswordUtils.getHash(password);
         User user;
         try {
             user = userService.getUser(authType, identification);
@@ -31,8 +32,14 @@ public class AuthServiceV1 implements AuthService {
             return USER_NOT_FOUND_ERROR;
         }
 
-        if(!user.getPasswordHash().equals(passwordHash)) {
+        if (!PasswordUtils.matches(password, user.getPasswordHash())) {
             return AUTH_FAILED_ERROR;
+        }
+        if (PasswordUtils.needsRehash(user.getPasswordHash())) {
+            User passwordUpgrade = new User();
+            passwordUpgrade.setId(user.getId());
+            passwordUpgrade.setPasswordHash(PasswordUtils.hashPassword(password));
+            userMapper.update(passwordUpgrade);
         }
         return SUCCESS;
     }
@@ -49,7 +56,7 @@ public class AuthServiceV1 implements AuthService {
         if(user == null) {
             return null;
         }
-        return JwtUtils.generateToken(user.getId());
+        return jwtUtils.generateToken(user.getId());
     }
 
 
@@ -66,7 +73,7 @@ public class AuthServiceV1 implements AuthService {
             default:
                 return UNKNOWN_TYPE_ERROR;
         }
-        String passwordHash = PasswordUtils.getHash(password);
+        String passwordHash = PasswordUtils.hashPassword(password);
         User user = new User();
         user.setId(UUID.randomUUID().toString()); // Generate UUID
         user.setPasswordHash(passwordHash);
@@ -90,13 +97,12 @@ public class AuthServiceV1 implements AuthService {
             return USER_NOT_FOUND_ERROR;
         }
         
-        String oldHash = PasswordUtils.getHash(oldPassword);
-        if (!existingUser.getPasswordHash().equals(oldHash)) {
+        if (!PasswordUtils.matches(oldPassword, existingUser.getPasswordHash())) {
             return AUTH_FAILED_ERROR;
         }
         
         // Update password
-        String newHash = PasswordUtils.getHash(newPassword);
+        String newHash = PasswordUtils.hashPassword(newPassword);
         User user = new User();
         user.setId(id);
         user.setPasswordHash(newHash);
@@ -108,18 +114,4 @@ public class AuthServiceV1 implements AuthService {
         return SUCCESS;
     }
 
-    @Override
-    public int resetPassword(String type, String identification, String newPassword) {
-        String passwordHash = PasswordUtils.getHash(newPassword);
-        User user = userService.getUser(type, identification);
-        if(user == null){
-            return USER_NOT_FOUND_ERROR;
-        }
-        user.setPasswordHash(passwordHash);
-        int code = userMapper.update(user);
-        if(code != 1){
-            return 500;
-        }
-        return SUCCESS;
-    }
 }

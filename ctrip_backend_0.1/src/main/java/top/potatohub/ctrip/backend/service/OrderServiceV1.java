@@ -27,8 +27,8 @@ public class OrderServiceV1 implements OrderService {
     }
 
     @Override
-    public Order getOrder(String id) {
-        return orderMapper.getOrderById(id);
+    public Order getOrder(String id, String userId) {
+        return orderMapper.getOrderByIdAndUserId(id, userId);
     }
 
     @Override
@@ -38,23 +38,27 @@ public class OrderServiceV1 implements OrderService {
 
     @Override
     public void updateStatus(String id, String status) {
-        System.out.println("Updating order " + id + " to status " + status);
         orderMapper.updateOrderStatus(id, status);
     }
 
     @Override
-    public void cancelOrder(String id) {
-        Order order = orderMapper.getOrderById(id);
+    public boolean updateStatusForUser(String id, String userId, String status) {
+        return orderMapper.updateOrderStatusForUser(id, userId, status) == 1;
+    }
+
+    @Override
+    public void cancelOrder(String id, String userId) {
+        Order order = orderMapper.getOrderByIdAndUserId(id, userId);
         if (order == null) {
             throw new RuntimeException("Order not found");
         }
         
         String status = order.getStatus();
         if ("Pending".equals(status)) {
-            orderMapper.updateOrderStatus(id, "Cancelled");
+            orderMapper.updateOrderStatusForUser(id, userId, "Cancelled");
         } else if ("Paid".equals(status)) {
             // Mock refund logic
-            orderMapper.updateOrderStatus(id, "Refunded");
+            orderMapper.updateOrderStatusForUser(id, userId, "Refunded");
         } else {
             throw new RuntimeException("Cannot cancel order with status: " + status);
         }
