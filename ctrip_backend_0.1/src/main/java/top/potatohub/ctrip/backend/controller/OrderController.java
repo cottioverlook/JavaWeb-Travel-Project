@@ -20,15 +20,6 @@ public class OrderController {
     @PostMapping
     public Result<Order> createOrder(@RequestBody Order order, HttpServletRequest request) {
         String userId = (String) request.getAttribute("userId");
-        if (userId == null) {
-            // For dev/test if no token provided, maybe allow anonymous or fail
-            // return Result.error("Unauthorized");
-            // Assuming token is optional for now or we enforce it?
-            // Let's enforce it but handle null gracefully if needed
-            // If token interceptor passes, userId might be null if token missing (unless interceptor blocks it)
-            // Our LoginInterceptor blocks if token invalid, but allows if OPTIONS or specific paths?
-            // Assuming Interceptor sets userId if token valid.
-        }
         order.setUserId(userId);
         return Result.success(orderService.createOrder(order));
     }
@@ -40,21 +31,29 @@ public class OrderController {
     }
     
     @GetMapping("/{id}")
-    public Result<Order> getOrder(@PathVariable String id) {
-        return Result.success(orderService.getOrder(id));
+    public Result<Order> getOrder(@PathVariable String id, HttpServletRequest request) {
+        String userId = (String) request.getAttribute("userId");
+        Order order = orderService.getOrder(id, userId);
+        if (order == null) {
+            return Result.error(404, "Order not found");
+        }
+        return Result.success(order);
     }
 
     @PostMapping("/{id}/pay")
-    public Result<String> payOrder(@PathVariable String id) {
-        System.out.println("Received pay request for order: " + id);
-        orderService.updateStatus(id, "Paid");
+    public Result<String> payOrder(@PathVariable String id, HttpServletRequest request) {
+        String userId = (String) request.getAttribute("userId");
+        if (!orderService.updateStatusForUser(id, userId, "Paid")) {
+            return Result.error(404, "Order not found");
+        }
         return Result.success("Payment successful");
     }
 
     @PostMapping("/{id}/cancel")
-    public Result<String> cancelOrder(@PathVariable String id) {
+    public Result<String> cancelOrder(@PathVariable String id, HttpServletRequest request) {
         try {
-            orderService.cancelOrder(id);
+            String userId = (String) request.getAttribute("userId");
+            orderService.cancelOrder(id, userId);
             return Result.success("Order cancelled successfully");
         } catch (RuntimeException e) {
             return Result.error(400, e.getMessage());

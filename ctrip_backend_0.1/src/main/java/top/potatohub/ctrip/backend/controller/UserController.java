@@ -11,10 +11,8 @@ import java.util.Map;
 import top.potatohub.ctrip.backend.common.Result;
 import top.potatohub.ctrip.backend.entities.User;
 import top.potatohub.ctrip.backend.entities.UserDTO;
-import top.potatohub.ctrip.backend.mapper.UserMapper;
+import top.potatohub.ctrip.backend.entities.UpdateProfileRequest;
 import top.potatohub.ctrip.backend.service.UserService;
-import top.potatohub.ctrip.backend.utils.JwtUtils;
-import top.potatohub.ctrip.backend.utils.PasswordUtils;
 
 @RestController
 @RequestMapping("/api")
@@ -24,9 +22,12 @@ public class UserController {
     private UserService userService;
 
     @PutMapping("/users/self/profile")
-    public Result<String> updateProfile(@RequestBody User user, HttpServletRequest request) {
+    public Result<String> updateProfile(@RequestBody UpdateProfileRequest profile, HttpServletRequest request) {
         String id = (String)request.getAttribute("userId");
+        User user = new User();
         user.setId(id);
+        user.setName(profile.getName());
+        user.setAvatarUrl(profile.getAvatarUrl());
         int code = userService.update(user);
         switch (code) {
             case UserService.USER_NOT_FOUND_ERROR:

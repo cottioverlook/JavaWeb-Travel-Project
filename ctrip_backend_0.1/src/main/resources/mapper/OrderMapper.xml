@@ -12,6 +12,11 @@
         FROM tb_orders WHERE id = #{id}
     </select>
 
+    <select id="getOrderByIdAndUserId" resultType="top.potatohub.ctrip.backend.entities.Order">
+        SELECT id, user_id as userId, product_id as productId, product_name as productName, amount, status, created_at as createdAt, updated_at as updatedAt
+        FROM tb_orders WHERE id = #{id} AND user_id = #{userId}
+    </select>
+
     <select id="getOrdersByUserId" resultType="top.potatohub.ctrip.backend.entities.Order">
         SELECT id, user_id as userId, product_id as productId, product_name as productName, amount, status, created_at as createdAt, updated_at as updatedAt
         FROM tb_orders WHERE user_id = #{userId}
@@ -20,6 +25,11 @@
 
     <update id="updateOrderStatus">
         UPDATE tb_orders SET status = #{status}, updated_at = NOW() WHERE id = #{id}
+    </update>
+
+    <update id="updateOrderStatusForUser">
+        UPDATE tb_orders SET status = #{status}, updated_at = NOW()
+        WHERE id = #{id} AND user_id = #{userId}
     </update>
 
 </mapper>

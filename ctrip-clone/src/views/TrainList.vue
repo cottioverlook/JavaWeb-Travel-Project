@@ -90,6 +90,7 @@
 </template>
 
 <script setup>
+import { CaretBottom } from '@element-plus/icons-vue'
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { searchTrains, getTrainSeats } from '@/api/train'

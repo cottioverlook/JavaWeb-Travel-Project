@@ -21,7 +21,8 @@ public class WebConfig implements WebMvcConfigurer {
             registry.addInterceptor(loginInterceptor)
                     .addPathPatterns("/**")  // Intercept all paths
                     .excludePathPatterns(
-                            "/auth/**",  // Exclude all auth related paths
+                            "/auth/register",
+                            "/auth/login",
                             "/alipay/**",
                             "/Weixin%20Image_20251218164216.png",
                             "/static/**",

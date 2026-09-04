@@ -1,39 +1,49 @@
 package top.potatohub.ctrip.backend.utils;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.JwtParser;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.nio.charset.StandardCharsets;
 
+@Component
 public class JwtUtils {
-    private static final byte[] SECRET_KEY = "What's the difference between potato & tomato?".getBytes(StandardCharsets.UTF_8);
     private static final SignatureAlgorithm SIGNATURE_ALGORITHM = SignatureAlgorithm.HS256;
-    private static final long EXPIRATION_TIME = 86400000;
 
-    // Generate Token
-    public static String generateToken(String userID) {
+    private final byte[] secretKey;
+    private final long expirationTime;
+
+    public JwtUtils(
+            @Value("${app.jwt.secret:}") String secret,
+            @Value("${app.jwt.expiration-ms:86400000}") long expirationTime) {
+        if (secret == null || secret.getBytes(StandardCharsets.UTF_8).length < 32) {
+            throw new IllegalStateException("JWT_SECRET must contain at least 32 bytes");
+        }
+        this.secretKey = secret.getBytes(StandardCharsets.UTF_8);
+        this.expirationTime = expirationTime;
+    }
+
+    public String generateToken(String userId) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("userId", userID);
+        claims.put("userId", userId);
 
-        // Create JWT builder.
         JwtBuilder builder = Jwts.builder();
         builder.setClaims(claims);
-        Date expTime = new Date(System.currentTimeMillis() + EXPIRATION_TIME);
-        builder.setExpiration(expTime);
-        builder.signWith(SIGNATURE_ALGORITHM, SECRET_KEY);
+        builder.setExpiration(new Date(System.currentTimeMillis() + expirationTime));
+        builder.signWith(SIGNATURE_ALGORITHM, secretKey);
         return builder.compact();
     }
 
-    // Parse Token
-    public static Claims parseToken(String token) {
+    public Claims parseToken(String token) {
         JwtParser parser = Jwts.parser();
-        parser.setSigningKey(SECRET_KEY);
+        parser.setSigningKey(secretKey);
         return parser.parseClaimsJws(token).getBody();
     }
 }

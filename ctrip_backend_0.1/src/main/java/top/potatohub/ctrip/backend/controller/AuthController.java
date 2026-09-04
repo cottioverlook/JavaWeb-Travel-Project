@@ -22,7 +22,6 @@ public class AuthController {
 
     @PostMapping("/register")
     public Result<String> register(@RequestBody Map<String, String> payload) {
-        System.out.println("Register request received: " + payload);
         String regType = payload.get("regType");
         String identification = payload.get("identification");
         String password = payload.get("password");
@@ -74,8 +73,10 @@ public class AuthController {
     @PostMapping("/logout")
     public Result<String> logout(HttpServletRequest request) {
         String token = request.getHeader("Authorization");
-        if (token != null && token.startsWith("Bearer ")) {
-            token = token.substring(7);
+        if (token != null && !token.isEmpty()) {
+            if (token.startsWith("Bearer ")) {
+                token = token.substring(7);
+            }
             tokenBlacklistService.addToBlacklist(token);
         }
         return Result.success("Logout successful");
@@ -94,25 +95,6 @@ public class AuthController {
                 return Result.success();
             case UserService.AUTH_FAILED_ERROR:
                 return Result.error(code, "Incorrect oldPassword!");
-            case UserService.USER_NOT_FOUND_ERROR:
-                return Result.error(UserService.USER_NOT_FOUND_ERROR, "User not found!");
-            default:
-                return Result.error(code, "Server inner error!");
-        }
-    }
-
-    @PutMapping("/resetPassword")
-    public Result<String> resetPassword(@RequestBody Map<String, String> payload) {
-        String authType = payload.get("authType");
-        String identification = payload.get("identification");
-        String newPassword = payload.get("newPassword");
-
-        int code = authService.resetPassword(authType, identification, newPassword);
-        switch (code) {
-            case UserService.SUCCESS:
-                return Result.success();
-            case UserService.AUTH_FAILED_ERROR:
-                return Result.error(code, "Authorization failed!");
             case UserService.USER_NOT_FOUND_ERROR:
                 return Result.error(UserService.USER_NOT_FOUND_ERROR, "User not found!");
             default:

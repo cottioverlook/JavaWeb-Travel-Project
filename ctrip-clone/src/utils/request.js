@@ -13,10 +13,7 @@ service.interceptors.request.use(
     // 在发送请求之前做些什么
     const token = localStorage.getItem('token')
     if (token) {
-      // 让每个请求携带自定义 token
-      // 根据后端 JwtUtils 实现，通常放在 Authorization 头中，或者直接作为参数
-      // 这里假设是 Bearer token 标准格式，或者后端直接读取 header
-      config.headers['Authorization'] = token
+      config.headers['Authorization'] = `Bearer ${token}`
     }
     return config
   },

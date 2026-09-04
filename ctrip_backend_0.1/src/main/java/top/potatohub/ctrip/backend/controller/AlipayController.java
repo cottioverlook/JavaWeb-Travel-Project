@@ -2,6 +2,9 @@ package top.potatohub.ctrip.backend.controller;
 
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.bind.annotation.*;
 import top.potatohub.ctrip.backend.service.OrderService;
 import top.potatohub.ctrip.backend.utils.PseudoAlipayApi;
@@ -15,11 +18,21 @@ public class AlipayController {
     @Autowired
     private OrderService orderService;
 
+    @Value("${app.mock-payment-enabled:false}")
+    private boolean mockPaymentEnabled;
+
+    private void requireMockPaymentEnabled() {
+        if (!mockPaymentEnabled) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+    }
+
     @GetMapping("/pay")
     public void pay(@RequestParam String outTradeNo,
                     @RequestParam String subject,
                     @RequestParam String totalAmount,
                     HttpServletResponse response) throws IOException {
+        requireMockPaymentEnabled();
         
         String bizContent = String.format("{\"out_trade_no\":\"%s\", \"total_amount\":\"%s\", \"subject\":\"%s\", \"product_code\":\"FAST_INSTANT_TRADE_PAY\"}",
                 outTradeNo, totalAmount, subject);
@@ -44,6 +57,7 @@ public class AlipayController {
                          @RequestParam(value = "notify_url", required = false) String notifyUrl,
                          @RequestParam(value = "return_url", required = false) String returnUrl,
                          HttpServletResponse response) throws IOException {
+        requireMockPaymentEnabled();
         
         // Update order status to 'Paid'
         orderService.updateStatus(outTradeNo, "Paid");

@@ -1,0 +1,10 @@
+version: 2
+updates:
+  - package-ecosystem: maven
+    directory: /ctrip_backend_0.1
+    schedule:
+      interval: weekly
+  - package-ecosystem: npm
+    directory: /ctrip-clone
+    schedule:
+      interval: weekly

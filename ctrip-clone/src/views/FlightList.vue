@@ -80,7 +80,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { Right } from '@element-plus/icons-vue'
+import { CaretBottom, Right } from '@element-plus/icons-vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getFlights, getFlightCabins } from '@/api/flight'
 import { ElMessage } from 'element-plus'

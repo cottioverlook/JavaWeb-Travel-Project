@@ -2,6 +2,7 @@ package top.potatohub.ctrip.backend.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import top.potatohub.ctrip.backend.entities.Attraction;
@@ -24,12 +25,17 @@ public class DatabaseInitializer implements CommandLineRunner {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    @Value("${app.seed-demo-data:false}")
+    private boolean seedDemoData;
+
     @Override
     public void run(String... args) throws Exception {
         System.out.println("Initializing Database Data...");
         
         initializeSchema();
-        seedData();
+        if (seedDemoData) {
+            seedData();
+        }
     }
 
     private void initializeSchema() {
