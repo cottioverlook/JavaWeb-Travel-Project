@@ -1,16 +1,16 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-// 直接引入所有页面，防止加载卡顿
 import HomeView from '../views/HomeView.vue'
-import HotelList from '../views/HotelList.vue'
-import HotelDetail from '../views/HotelDetail.vue'
-import Login from '../views/Login.vue'
-import Pay from '../views/Pay.vue'
-import UserCenter from '../views/UserCenter.vue'
-import SceneryList from '../views/SceneryList.vue'
-import SceneryDetail from '../views/SceneryDetail.vue'
-import FlightList from '../views/FlightList.vue'
-import TrainList from '../views/TrainList.vue'
+
+const HotelList = () => import('../views/HotelList.vue')
+const HotelDetail = () => import('../views/HotelDetail.vue')
+const Login = () => import('../views/Login.vue')
+const Pay = () => import('../views/Pay.vue')
+const UserCenter = () => import('../views/UserCenter.vue')
+const SceneryList = () => import('../views/SceneryList.vue')
+const SceneryDetail = () => import('../views/SceneryDetail.vue')
+const FlightList = () => import('../views/FlightList.vue')
+const TrainList = () => import('../views/TrainList.vue')
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
